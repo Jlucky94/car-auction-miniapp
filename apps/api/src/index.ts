@@ -33,15 +33,22 @@ function getOrCreatePlayerState(userId: string): PlayerState {
 }
 
 app.setErrorHandler((error, _request, reply) => {
-  if (error.validation) {
-    return reply.status(400).send(badRequest('Invalid request payload', error.validation));
+  const maybeValidation =
+    typeof error === 'object' && error !== null && 'validation' in error
+      ? (error as { validation?: unknown }).validation
+      : undefined
+
+  if (maybeValidation) {
+    return reply.status(400).send(badRequest('Invalid request payload', maybeValidation))
   }
+
+  const message = error instanceof Error ? error.message : 'An unexpected error occurred'
 
   return reply.status(500).send({
     code: 'INTERNAL_SERVER_ERROR',
-    message: 'An unexpected error occurred'
-  } satisfies ErrorResponse);
-});
+    message
+  } satisfies ErrorResponse)
+})
 
 app.get('/api/v1/health', async () => ({ status: 'ok' }));
 
