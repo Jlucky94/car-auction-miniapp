@@ -50,12 +50,12 @@ jobs:
           OWNER: jlucky94
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "OWNER='${OWNER}' bash -s" <<'EOF'
-            set -e
+          set -e
 
-            mkdir -p /var/www/car-auction-miniapp
-            cd /var/www/car-auction-miniapp
+          mkdir -p /var/www/car-auction-miniapp
+          cd /var/www/car-auction-miniapp
 
-            cat > docker-compose.yml <<YAML
+          cat > docker-compose.yml <<YAML
           services:
             api:
               image: ghcr.io/$OWNER/car-auction-miniapp-api:latest
@@ -70,9 +70,9 @@ jobs:
               depends_on:
                 - api
               restart: unless-stopped
-            YAML
+          YAML
 
-            docker compose pull
-            docker compose up -d
-            docker image prune -f
-            EOF
+          docker compose pull
+          docker compose up -d
+          docker image prune -f
+          EOF
