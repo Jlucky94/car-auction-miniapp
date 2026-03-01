@@ -10,7 +10,7 @@ COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter @car-auction/shared build
 RUN pnpm --filter @car-auction/api build
-RUN pnpm deploy --filter @car-auction/api --prod /prod/api
+RUN pnpm deploy --legacy --filter @car-auction/api --prod /prod/api
 
 FROM node:18-alpine AS runtime
 WORKDIR /app
