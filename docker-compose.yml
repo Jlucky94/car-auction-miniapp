@@ -1,0 +1,14 @@
+services:
+  api:
+    image: ghcr.io/Jlucky94/car-auction-miniapp-api:latest
+    environment:
+      - PORT=3001
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/Jlucky94/car-auction-miniapp-web:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    restart: unless-stopped

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a4a9e89f-9e5e-460a-9c3f-245097dac824" name="Changes" comment="init">
+      <change afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/api/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/web/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/apps/web/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/lucky/WebstormProjects/car-auction-miniapp" value="3AKSyY8SUy4COidKfQQzUkHzOBw" />
+    </persistenceIdMap>
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="4" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Jlucky94"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Jlucky94/car-auction-miniapp",
+    "accountId": "ccaf0e61-ca2a-4412-9e6c-bd3293ec94ba"
+  }
+}]]></component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="3AKSyY8SUy4COidKfQQzUkHzOBw" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "master",
+    "javascript.preferred.runtime.type.id": "node",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "ts.external.directory.path": "C:\\Users\\lucky\\WebstormProjects\\car-auction-miniapp\\packages\\shared\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RunManager">
+    <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="npm.dev" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a4a9e89f-9e5e-460a-9c3f-245097dac824" name="Changes" comment="" />
+      <created>1772340023447</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1772340023447</updated>
+      <workItem from="1772340024561" duration="3301000" />
+    </task>
+    <task id="LOCAL-00001" summary="init">
+      <option name="closed" value="true" />
+      <created>1772340072252</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1772340072252</updated>
+    </task>
+    <task id="LOCAL-00002" summary="init">
+      <option name="closed" value="true" />
+      <created>1772340086020</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772340086020</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init" />
+    <option name="LAST_COMMIT_MESSAGE" value="init" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>
