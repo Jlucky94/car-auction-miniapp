@@ -1,14 +1,14 @@
-export type AuthoritativeState = {
+export type PlayerState = {
   balance: number;
 };
 
-export function createInitialState(): AuthoritativeState {
+export function createInitialState(): PlayerState {
   return {
     balance: 0
   };
 }
 
-export function applyClick(state: AuthoritativeState): AuthoritativeState {
+export function applyClick(state: PlayerState): PlayerState {
   return {
     ...state,
     balance: state.balance + 1
