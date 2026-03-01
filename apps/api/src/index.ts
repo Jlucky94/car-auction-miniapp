@@ -1,36 +1,50 @@
 import Fastify from 'fastify';
 
+import {
+  applyClick,
+  createInitialState,
+  type AuthoritativeState as PlayerState
+} from '@car-auction/shared';
+
 const app = Fastify({ logger: true });
 
-const userBalances = new Map<string, number>();
+const playerStates = new Map<string, PlayerState>();
 
-app.get('/health', async () => ({ ok: true }));
-
-app.get('/api/v1/balance', async (request, reply) => {
-  const { userId } = request.query as { userId?: string };
-
-  if (!userId) {
-    return reply.code(400).send({ error: 'userId is required' });
+app.setErrorHandler((error, _request, reply) => {
+  if (error.validation) {
+    return reply.status(400).send({
+      code: 'BAD_REQUEST',
+      message: error.message
+    });
   }
 
-  return { balance: userBalances.get(userId) ?? 0 };
+  return reply.status(500).send({
+    code: 'INTERNAL_SERVER_ERROR',
+    message: 'An unexpected error occurred'
+  });
 });
+
+app.get('/api/v1/health', async () => ({ status: 'ok' }));
 
 app.post('/api/v1/click', async (request, reply) => {
   const { userId } = request.body as { userId?: string };
 
   if (!userId) {
-    return reply.code(400).send({ error: 'userId is required' });
+    return reply.status(400).send({
+      code: 'BAD_REQUEST',
+      message: 'userId is required'
+    });
   }
 
-  const currentBalance = userBalances.get(userId) ?? 0;
-  const updatedBalance = currentBalance + 1;
+  const currentState = playerStates.get(userId) ?? createInitialState();
+  const updatedState = applyClick(currentState);
 
-  userBalances.set(userId, updatedBalance);
+  playerStates.set(userId, updatedState);
 
-  return { balance: updatedBalance };
+  return updatedState;
 });
 
 const port = Number(process.env.PORT ?? 3001);
 
 await app.listen({ port, host: '0.0.0.0' });
+app.log.info(`Server listening on http://localhost:${port}`);
