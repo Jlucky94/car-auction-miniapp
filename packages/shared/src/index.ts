@@ -1,14 +1,16 @@
-export interface GameState {
-  coins: number;
-  coinsPerTap: number;
+export type AuthoritativeState = {
+  balance: number;
+};
+
+export function createInitialState(): AuthoritativeState {
+  return {
+    balance: 0
+  };
 }
 
-export const createInitialState = (): GameState => ({
-  coins: 0,
-  coinsPerTap: 1
-});
-
-export const tap = (state: GameState): GameState => ({
-  ...state,
-  coins: state.coins + state.coinsPerTap
-});
+export function applyClick(state: AuthoritativeState): AuthoritativeState {
+  return {
+    ...state,
+    balance: state.balance + 1
+  };
+}
