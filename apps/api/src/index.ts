@@ -1,13 +1,32 @@
 import Fastify from 'fastify';
-import { createInitialState, tap } from '@car-auction/shared';
+import {
+  applyClick,
+  createInitialState,
+  type AuthoritativeState
+} from '@car-auction/shared';
 
 const app = Fastify({ logger: true });
 
-app.get('/health', async () => ({ ok: true }));
+const store = new Map<string, AuthoritativeState>();
 
-app.get('/game/sample-tap', async () => {
-  const initial = createInitialState();
-  return tap(initial);
+app.get('/api/v1/health', async () => ({ status: 'ok' }));
+
+app.post<{
+  Body: {
+    userId: string;
+  };
+}>('/api/v1/click', async (request, reply) => {
+  const { userId } = request.body;
+
+  if (!userId) {
+    return reply.code(400).send({ message: 'userId is required' });
+  }
+
+  const currentState = store.get(userId) ?? createInitialState();
+  const nextState = applyClick(currentState);
+  store.set(userId, nextState);
+
+  return nextState;
 });
 
 const port = Number(process.env.PORT ?? 3001);
