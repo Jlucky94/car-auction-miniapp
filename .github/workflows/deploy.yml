@@ -50,29 +50,31 @@ jobs:
           OWNER: jlucky94
         run: |
           ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "OWNER='${OWNER}' bash -s" <<'EOF'
-          set -e
+set -euo pipefail
 
-          mkdir -p /var/www/car-auction-miniapp
-          cd /var/www/car-auction-miniapp
+mkdir -p /var/www/car-auction-miniapp
+cd /var/www/car-auction-miniapp
 
-          cat > docker-compose.yml <<YAML
-          services:
-            api:
-              image: ghcr.io/$OWNER/car-auction-miniapp-api:latest
-              environment:
-                - PORT=3001
-              restart: unless-stopped
+cat > docker-compose.yml <<YAML
+services:
+  api:
+    image: ghcr.io/$OWNER/car-auction-miniapp-api:latest
+    environment:
+      - PORT=3001
+    restart: unless-stopped
 
-            web:
-              image: ghcr.io/$OWNER/car-auction-miniapp-web:latest
-              ports:
-                - "80:80"
-              depends_on:
-                - api
-              restart: unless-stopped
-          YAML
+  web:
+    image: ghcr.io/$OWNER/car-auction-miniapp-web:latest
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+YAML
 
-          docker compose pull
-          docker compose up -d
-          docker image prune -f
-          EOF
+docker compose pull
+docker compose up -d
+docker compose ps
+curl -f http://localhost:8080
+docker image prune -f
+EOF
