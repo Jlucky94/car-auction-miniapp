@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   build-and-deploy:
+    environment: car-auction-miniapp
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
