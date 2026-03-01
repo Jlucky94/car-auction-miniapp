@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a4a9e89f-9e5e-460a-9c3f-245097dac824" name="Changes" comment="ci">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="a4a9e89f-9e5e-460a-9c3f-245097dac824" name="Changes" comment="ci: update deploy compose web port to 8090">
+      <change beforePath="$PROJECT_DIR$/apps/web/nginx.conf" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web/nginx.conf" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,7 +104,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1772340023447</updated>
-      <workItem from="1772340024561" duration="6472000" />
+      <workItem from="1772340024561" duration="7450000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <option name="closed" value="true" />
@@ -194,7 +194,23 @@
       <option name="project" value="LOCAL" />
       <updated>1772345598490</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="ci">
+      <option name="closed" value="true" />
+      <created>1772347317300</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347317300</updated>
+    </task>
+    <task id="LOCAL-00013" summary="ci: update deploy compose web port to 8090">
+      <option name="closed" value="true" />
+      <created>1772347464277</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1772347464277</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -214,7 +230,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init" />
     <MESSAGE value="ci" />
-    <option name="LAST_COMMIT_MESSAGE" value="ci" />
+    <MESSAGE value="ci: update deploy compose web port to 8090" />
+    <option name="LAST_COMMIT_MESSAGE" value="ci: update deploy compose web port to 8090" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
