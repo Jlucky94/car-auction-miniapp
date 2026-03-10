@@ -72,7 +72,7 @@ function App() {
       setAuthState({
         status: 'error',
         message:
-          'Telegram initData is missing. Open inside Telegram or set VITE_DEV_TELEGRAM_INIT_DATA for local development.'
+          'Telegram initData is missing. Open inside Telegram or generate local initData via pnpm --filter @car-auction/web gen:init-data and set VITE_DEV_TELEGRAM_INIT_DATA.'
       });
       return;
     }
