@@ -4,8 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9e28fa86-a4d9-4556-bf88-76092a0bd481" name="Changes" comment="feat: add Telegram local auth init data generator and balance/click API integration">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy.yml" afterDir="false" />
+    <list default="true" id="9e28fa86-a4d9-4556-bf88-76092a0bd481" name="Changes" comment="feat: implement idle clicker core with UI, domain logic, and offline rewards">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web/src/main.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/web/src/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/apps/web/src/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/shared/src/index.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/shared/src/index.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/shared/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/shared/src/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/progress.md" beforeDir="false" afterPath="$PROJECT_DIR$/progress.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,7 +38,8 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "npm.dev.executor": "Run"
+    "npm.dev.executor": "Run",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2023.3.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
 }]]></component>
   <component name="RunManager">
@@ -98,7 +104,23 @@
       <option name="project" value="LOCAL" />
       <updated>1773145538674</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feat: add Telegram local auth init data generator and balance/click API integration">
+      <option name="closed" value="true" />
+      <created>1773145866576</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1773145866576</updated>
+    </task>
+    <task id="LOCAL-00003" summary="feat: implement idle clicker core with UI, domain logic, and offline rewards">
+      <option name="closed" value="true" />
+      <created>1773149973936</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1773149973936</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -114,6 +136,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat: add Telegram local auth init data generator and balance/click API integration" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: add Telegram local auth init data generator and balance/click API integration" />
+    <MESSAGE value="feat: implement idle clicker core with UI, domain logic, and offline rewards" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement idle clicker core with UI, domain logic, and offline rewards" />
   </component>
 </project>

@@ -1,19 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  DEFAULT_ECONOMY_CONFIG,
-  UPGRADE_IDS,
-  applyElapsedTime,
-  applyTap,
-  buyUpgrade,
-  createInitialGameState,
-  getDerivedStats,
-  getUpgradeCost,
-  rehydrateGameState,
-  type GameState,
-  type UpgradeId
-} from '@car-auction/shared';
+import { type UpgradeView } from '@car-auction/shared';
 
+import { createLocalGameStateStorage } from './game/local-game-storage';
+import { UPGRADE_IDS, useLocalGame } from './game/use-local-game';
 import './styles.css';
 
 type User = {
@@ -32,11 +22,6 @@ type AuthState =
   | { status: 'authenticated'; accessToken: string; user: User }
   | { status: 'error'; message: string };
 
-type OfflineReward = {
-  coinsEarned: number;
-  elapsedMs: number;
-};
-
 declare global {
   interface Window {
     Telegram?: {
@@ -50,8 +35,7 @@ declare global {
 }
 
 const DEV_INIT_DATA = import.meta.env.VITE_DEV_TELEGRAM_INIT_DATA as string | undefined;
-const STORAGE_KEY = 'car-auction-idle-clicker-v1';
-const TICK_MS = 1000;
+const storage = createLocalGameStateStorage();
 
 async function authenticate(initData: string) {
   const response = await fetch('/api/v1/auth/telegram', {
@@ -65,27 +49,6 @@ async function authenticate(initData: string) {
   }
 
   return (await response.json()) as { accessToken: string; user: User };
-}
-
-function loadStoredGameState(now = Date.now()): GameState {
-  if (typeof window === 'undefined') {
-    return createInitialGameState(now, DEFAULT_ECONOMY_CONFIG);
-  }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    return createInitialGameState(now, DEFAULT_ECONOMY_CONFIG);
-  }
-
-  try {
-    return rehydrateGameState(JSON.parse(raw), now, DEFAULT_ECONOMY_CONFIG);
-  } catch {
-    return createInitialGameState(now, DEFAULT_ECONOMY_CONFIG);
-  }
-}
-
-function saveStoredGameState(state: GameState) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function formatCoins(value: number): string {
@@ -122,7 +85,7 @@ function formatOfflineDuration(elapsedMs: number): string {
 }
 
 function useAuthState() {
-  const [authState, setAuthState] = useState<AuthState>({ status: 'checking' });
+  const [authState, setAuthState] = React.useState<AuthState>({ status: 'checking' });
 
   useEffect(() => {
     let cancelled = false;
@@ -131,10 +94,7 @@ function useAuthState() {
       const initData = window.Telegram?.WebApp?.initData || (import.meta.env.DEV ? DEV_INIT_DATA : undefined);
 
       if (!initData) {
-        setAuthState({
-          status: 'local',
-          message: 'Local progress mode'
-        });
+        setAuthState({ status: 'local', message: 'Local save active' });
         return;
       }
 
@@ -147,7 +107,7 @@ function useAuthState() {
         if (!cancelled) {
           setAuthState({
             status: 'error',
-            message: error instanceof Error ? `${error.message}. Falling back to local progress.` : 'Falling back to local progress.'
+            message: error instanceof Error ? `${error.message}. Local save active.` : 'Local save active.'
           });
         }
       }
@@ -163,91 +123,78 @@ function useAuthState() {
   return authState;
 }
 
+function getCategoryLabel(category: UpgradeView['category']): string {
+  switch (category) {
+    case 'tap':
+      return 'Active';
+    case 'passive':
+      return 'Idle';
+    case 'tap-multiplier':
+      return 'Tap Boost';
+    case 'passive-multiplier':
+      return 'Idle Boost';
+    case 'global-multiplier':
+      return 'All Profit';
+  }
+}
+
+function getPrimaryUpgrade(upgradeViews: UpgradeView[]): UpgradeView | undefined {
+  const unlocked = upgradeViews.filter((upgrade) => upgrade.unlocked);
+  const pool = unlocked.length > 0 ? unlocked : upgradeViews;
+
+  return pool.reduce((best, current) => {
+    if (!best) {
+      return current;
+    }
+
+    if (current.canAfford && !best.canAfford) {
+      return current;
+    }
+
+    if (current.canAfford === best.canAfford) {
+      if (current.tapsToAfford < best.tapsToAfford) {
+        return current;
+      }
+
+      if (current.tapsToAfford === best.tapsToAfford && current.cost < best.cost) {
+        return current;
+      }
+    }
+
+    return best;
+  }, pool[0]);
+}
+
 function App() {
   const authState = useAuthState();
-  const [gameState, setGameState] = useState<GameState>(() => loadStoredGameState());
-  const [offlineReward, setOfflineReward] = useState<OfflineReward | null>(null);
-  const stateRef = useRef(gameState);
+  const { gameState, coins, stats, upgradeViews, offlineReward, performTap, purchase, advanceByMs } = useLocalGame(storage);
+
+  const primaryUpgrade = React.useMemo(() => {
+    return getPrimaryUpgrade(upgradeViews);
+  }, [upgradeViews]);
 
   useEffect(() => {
-    stateRef.current = gameState;
-    saveStoredGameState(gameState);
-  }, [gameState]);
-
-  const commitGameState = useCallback((nextState: GameState) => {
-    stateRef.current = nextState;
-    setGameState(nextState);
-  }, []);
-
-  const processElapsed = useCallback((now: number, announceOfflineReward: boolean) => {
-    const result = applyElapsedTime(stateRef.current, now, DEFAULT_ECONOMY_CONFIG);
-    if (result.actualElapsedMs <= 0) {
-      return;
-    }
-
-    commitGameState(result.state);
-
-    if (announceOfflineReward) {
-      if (result.coinsEarned > 0 && result.actualElapsedMs > TICK_MS * 2) {
-        setOfflineReward({
-          coinsEarned: result.coinsEarned,
-          elapsedMs: result.appliedElapsedMs
-        });
-      } else {
-        setOfflineReward(null);
-      }
-    }
-  }, [commitGameState]);
-
-  useEffect(() => {
-    processElapsed(Date.now(), true);
-
-    const interval = window.setInterval(() => {
-      processElapsed(Date.now(), false);
-    }, TICK_MS);
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        processElapsed(Date.now(), true);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [processElapsed]);
-
-  const stats = useMemo(() => getDerivedStats(gameState, DEFAULT_ECONOMY_CONFIG), [gameState]);
-
-  const performTap = useCallback(() => {
-    setOfflineReward(null);
-    commitGameState(applyTap(stateRef.current, DEFAULT_ECONOMY_CONFIG));
-  }, [commitGameState]);
-
-  const purchase = useCallback((upgradeId: UpgradeId) => {
-    commitGameState(buyUpgrade(stateRef.current, upgradeId, DEFAULT_ECONOMY_CONFIG));
-  }, [commitGameState]);
-
-  useEffect(() => {
-    window.render_game_to_text = () => {
-      const currentState = stateRef.current;
-      const currentStats = getDerivedStats(currentState, DEFAULT_ECONOMY_CONFIG);
-
-      return JSON.stringify({
+    window.render_game_to_text = () =>
+      JSON.stringify({
         mode: 'idle-clicker',
         layout: 'mobile-portrait',
-        coins: Number(currentState.coins.toFixed(2)),
-        coinsPerTap: currentStats.coinsPerTap,
-        coinsPerSecond: Number(currentStats.coinsPerSecond.toFixed(2)),
-        lastProcessedAt: currentState.lastProcessedAt,
-        upgrades: UPGRADE_IDS.map((upgradeId) => ({
-          id: upgradeId,
-          level: currentState.upgradeLevels[upgradeId],
-          cost: getUpgradeCost(currentState, upgradeId, DEFAULT_ECONOMY_CONFIG)
+        storageMode: 'local-only',
+        coins: Number(coins.toFixed(2)),
+        coinsPerTap: stats.coinsPerTap,
+        coinsPerSecond: Number(stats.coinsPerSecond.toFixed(2)),
+        tapMultiplier: Number(stats.tapMultiplier.toFixed(2)),
+        passiveMultiplier: Number(stats.passiveMultiplier.toFixed(2)),
+        globalMultiplier: Number(stats.globalMultiplier.toFixed(2)),
+        lastProcessedAt: gameState.meta.lastProcessedAt,
+        upgrades: upgradeViews.map((upgrade: UpgradeView) => ({
+          id: upgrade.id,
+          level: upgrade.level,
+          cost: upgrade.cost,
+          canAfford: upgrade.canAfford,
+          tapsToAfford: upgrade.tapsToAfford,
+          unlocked: upgrade.unlocked
         })),
+        milestones: stats.activeMilestones.map((milestone) => milestone.id),
         offlineReward: offlineReward
           ? {
               coinsEarned: Number(offlineReward.coinsEarned.toFixed(2)),
@@ -256,30 +203,33 @@ function App() {
           : null,
         coordinates: 'UI only; no world coordinates'
       });
-    };
 
     window.advanceTime = (ms: number) => {
-      const now = stateRef.current.lastProcessedAt + Math.max(0, Math.floor(ms));
-      const result = applyElapsedTime(stateRef.current, now, DEFAULT_ECONOMY_CONFIG);
-      commitGameState(result.state);
+      advanceByMs(ms);
     };
 
     return () => {
       delete window.render_game_to_text;
       delete window.advanceTime;
     };
-  }, [commitGameState, offlineReward]);
+  }, [advanceByMs, coins, gameState.meta.lastProcessedAt, offlineReward, stats, upgradeViews]);
 
   return (
     <main className="app-shell">
       <section className="status-card">
-        <div>
-          <p className="eyebrow">Dealership cash</p>
-          <h1>{formatCoins(gameState.coins)}</h1>
+        <div className="status-row">
+          <div>
+            <p className="eyebrow">Dealership cash</p>
+            <h1>{formatCoins(coins)}</h1>
+          </div>
+          <div className="session-chip">
+            {authState.status === 'authenticated' ? 'Telegram session' : 'Local save'}
+          </div>
         </div>
         <div className="status-pill-group">
           <span className="status-pill">+{formatCoins(stats.coinsPerTap)} / tap</span>
           <span className="status-pill">+{formatRate(stats.coinsPerSecond)} / sec</span>
+          {stats.globalMultiplier > 1 && <span className="status-pill">x{formatRate(stats.globalMultiplier)} all</span>}
         </div>
         <p className="auth-hint">
           {authState.status === 'authenticated'
@@ -289,6 +239,33 @@ function App() {
               : authState.message}
         </p>
       </section>
+
+      {primaryUpgrade && (
+        <section className="focus-card" aria-live="polite">
+          <span className="focus-card__eyebrow">Next target</span>
+          <strong>{primaryUpgrade.label}</strong>
+          <span>
+            {!primaryUpgrade.unlocked
+              ? primaryUpgrade.unlockHint
+              : primaryUpgrade.canAfford
+              ? `Ready now for ${formatCoins(primaryUpgrade.cost)}`
+              : `${primaryUpgrade.tapsToAfford} taps left to ${formatCoins(primaryUpgrade.cost)}`}
+          </span>
+        </section>
+      )}
+
+      {stats.activeMilestones.length > 0 && (
+        <section className="milestone-card">
+          <span className="focus-card__eyebrow">Milestones active</span>
+          <div className="milestone-chip-row">
+            {stats.activeMilestones.map((milestone) => (
+              <span key={milestone.id} className="milestone-chip">
+                {milestone.title}
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
 
       {offlineReward && (
         <section className="offline-banner" aria-live="polite">
@@ -300,44 +277,52 @@ function App() {
         <button type="button" className="tap-button" onClick={performTap}>
           <span className="tap-button__label">Tap to sell</span>
           <span className="tap-button__value">+{formatCoins(stats.coinsPerTap)}</span>
+          <span className="tap-button__subtle">Fast cash, then automate.</span>
         </button>
       </section>
 
       <section className="upgrades-panel">
         <div className="panel-header">
           <h2>Upgrades</h2>
-          <span>First minutes should move fast.</span>
+          <span>Balanced for quick early momentum.</span>
         </div>
         <div className="upgrade-list">
-          {UPGRADE_IDS.map((upgradeId) => {
-            const upgrade = DEFAULT_ECONOMY_CONFIG.upgrades[upgradeId];
-            const cost = getUpgradeCost(gameState, upgradeId, DEFAULT_ECONOMY_CONFIG);
-            const level = gameState.upgradeLevels[upgradeId];
-            const canBuy = gameState.coins >= cost;
-
-            return (
-              <article key={upgradeId} className="upgrade-card">
-                <div className="upgrade-copy">
-                  <div className="upgrade-title-row">
-                    <h3>{upgrade.label}</h3>
-                    <span className="upgrade-level">Lv. {level}</span>
-                  </div>
-                  <p>{upgrade.description}</p>
+          {upgradeViews.map((upgrade: UpgradeView) => (
+            <article key={upgrade.id} className="upgrade-card">
+              <div className="upgrade-copy">
+                <div className="upgrade-title-row">
+                  <h3>{upgrade.label}</h3>
+                  <span className="upgrade-level">Lv. {upgrade.level}</span>
+                </div>
+                <div className="upgrade-category-row">
+                  <span className="upgrade-category">{getCategoryLabel(upgrade.category)}</span>
+                  <span className="upgrade-short">{upgrade.shortLabel}</span>
+                </div>
+                <p>{upgrade.description}</p>
+                <div className="upgrade-meta-row">
                   <span className="upgrade-effect">
                     {upgrade.effectLabel} {formatRate(upgrade.effectPerLevel)}
                   </span>
+                  <span className="upgrade-affordance">
+                    {!upgrade.unlocked ? 'Locked' : upgrade.canAfford ? 'Ready' : `${upgrade.tapsToAfford} taps`}
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  className="upgrade-button"
-                  onClick={() => purchase(upgradeId)}
-                  disabled={!canBuy}
-                >
-                  Buy {formatCoins(cost)}
-                </button>
-              </article>
-            );
-          })}
+                <p className="upgrade-boost">{upgrade.boostSummary}</p>
+                {!upgrade.unlocked && upgrade.unlockHint && <p className="upgrade-lock">{upgrade.unlockHint}</p>}
+                <div className="upgrade-progress" aria-hidden="true">
+                  <span style={{ width: `${Math.max(8, upgrade.affordability * 100)}%` }} />
+                </div>
+              </div>
+              <button
+                type="button"
+                className="upgrade-button"
+                onClick={() => purchase(upgrade.id)}
+                disabled={!upgrade.canAfford}
+              >
+                {upgrade.unlocked ? `Buy ${formatCoins(upgrade.cost)}` : 'Locked'}
+              </button>
+            </article>
+          ))}
         </div>
       </section>
     </main>
