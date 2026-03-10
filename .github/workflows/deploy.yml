@@ -48,8 +48,16 @@ jobs:
       - name: Deploy on VPS
         env:
           OWNER: jlucky94
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "OWNER='${OWNER}' bash -s" <<'EOF'
+          if [ -z "${TELEGRAM_BOT_TOKEN}" ] || [ -z "${JWT_SECRET}" ]; then
+            echo "::error::Missing required secrets TELEGRAM_BOT_TOKEN and/or JWT_SECRET in GitHub environment"
+            exit 1
+          fi
+
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "OWNER='${OWNER}' TELEGRAM_BOT_TOKEN='${TELEGRAM_BOT_TOKEN}' JWT_SECRET='${JWT_SECRET}' JWT_EXPIRES_IN='${JWT_EXPIRES_IN}' bash -s" <<'EOF'
           set -e
 
           mkdir -p /var/www/car-auction-miniapp
@@ -61,6 +69,9 @@ jobs:
               image: ghcr.io/$OWNER/car-auction-miniapp-api:latest
               environment:
                 - PORT=3001
+                - TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+                - JWT_SECRET=$JWT_SECRET
+                - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
               restart: unless-stopped
 
             web:
@@ -75,6 +86,7 @@ jobs:
           docker compose pull
           docker compose up -d
           docker compose ps
+          docker compose logs api --tail=100 || true
           curl -f http://localhost:8090
           docker image prune -f
           EOF
